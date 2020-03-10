@@ -3,6 +3,8 @@ import sys
 from pygame.locals import *
 import threading
 import time
+import os
+import playsound
 
 
 class bullet:
@@ -50,12 +52,16 @@ vaisseauY = 400
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
-global score
-score = 0
+score: int = 0
 
 
-def setScore(score):
-    score = score + 1
+def setScore():
+    global score
+    global textsurface
+    score += 1
+    textsurface = myfont.render(
+        ' Score : ' + str(score), False, (255, 255, 255))
+    maSurface.blit(textsurface, (0, 0))
 
 
 myfont = pygame.font.SysFont('', 30)
@@ -65,14 +71,15 @@ textsurface = myfont.render(' Score : '+str(score), False, (255, 255, 255))
 def afficheAlien(alien, listeAlien):
     for x in range(len(listeAlien)):
         if listeAlien[x][2] == True:
-            maSurface.blit(alien, (listeAlien[x][0], listeAlien[x][1]))
+            maSurface.blit(
+                alien, (listeAlien[x][0], listeAlien[x][1]))
 
 
 def creationAlien(listeAlien):
     x = 20
     y = 50
     etat = True
-    for y in range(75, 300, 75):
+    for y in range(50, 150, 30):
         for x in range(40, 600, 40):
             listeAlien.append([x, y, etat])
 
@@ -100,13 +107,24 @@ def redrawGameWindow():
             if bullet.posX >= listeAlien[x][0] and bullet.posX <= listeAlien[x][0] + 40 and listeAlien[x][2] == True:
                 if bullet.posY >= listeAlien[x][1] and bullet.posY <= listeAlien[x][1] + 30 and listeAlien[x][2] == True:
                     bullets.remove(bullet)
-                    setScore(score)
+                    setScore()
                     listeAlien[x][2] = False
+                    alienDead = threading.Thread(target=playExplosion)
+                    alienDead.start()
                     break
         bullet.draw(maSurface)
     pygame.display.update()
 
 
+def playLazer():
+    playsound.playsound('assets/lazer.mp3')
+
+
+def playExplosion():
+    playsound.playsound('assets/explo.mp3')
+
+
+clock = pygame.time.Clock()
 creationAlien(listeAlien)
 while inProgress:
     for event in pygame.event.get():
@@ -120,8 +138,11 @@ while inProgress:
             if keys[pygame.K_LEFT]:
                 if(vaisseauX + 20 >= 0):
                     vaisseauX -= 20
-            if event.key == K_SPACE:
+            if keys[pygame.K_SPACE]:
+                lazerT = threading.Thread(target=playLazer)
+                lazerT.start()
                 bullets.append(bullet(vaisseauX, vaisseauY))
     redrawGameWindow()
+    clock.tick(100)
 
 pygame.quit()
