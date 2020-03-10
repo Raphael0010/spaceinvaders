@@ -11,6 +11,7 @@ Space Invader with Python library
 git clone https://github.com/Raphael0010/spaceinvaders
 cd spaceinvaders
 pip install playsound
+pip install pygame
 ```
 
 ## Usage
