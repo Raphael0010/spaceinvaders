@@ -13,7 +13,7 @@ class bullet:
     radius = 5
 
     def __init__(self, vaisseauX, vaisseauY):
-        self.posX = vaisseauX + 58
+        self.posX = vaisseauX + 49
         self.posY = vaisseauY
         launche = threading.Thread(target=self.__launch)
         launche.start()
@@ -24,8 +24,11 @@ class bullet:
             self.posY = self.posY - 10
 
     def draw(self, surface):
-        pygame.draw.circle(surface, (255, 0, 0),
-                           (self.posX, self.posY), self.radius)
+        bullet = pygame.image.load('assets/bullet.png')
+        bullet = pygame.transform.scale(bullet, (20, 40))
+        surface.blit(bullet, (self.posX, self.posY))
+        # pygame.draw.circle(surface, (255, 0, 0),
+        #                  (self.posX, self.posY), self.radius)
 
 
 pygame.init()
@@ -51,7 +54,10 @@ vaisseauY = 400
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-
+RED = (255, 0, 0)
+YELLOW = (255, 255, 0)
+GREEN = (0, 255, 0)
+BLUE = (0, 0, 255)
 score: int = 0
 
 
@@ -90,10 +96,10 @@ def redrawGameWindow():
     # alien
     afficheAlien(alien, listeAlien)
     # block
-    block.append(pygame.draw.rect(maSurface, WHITE, [50, 340, 80, 40]))
-    block.append(pygame.draw.rect(maSurface, WHITE, [200, 340, 80, 40]))
-    block.append(pygame.draw.rect(maSurface, WHITE, [350, 340, 80, 40]))
-    block.append(pygame.draw.rect(maSurface, WHITE, [500, 340, 80, 40]))
+    block.append(pygame.draw.rect(maSurface, RED, [50, 340, 80, 40]))
+    block.append(pygame.draw.rect(maSurface, YELLOW, [200, 340, 80, 40]))
+    block.append(pygame.draw.rect(maSurface, GREEN, [350, 340, 80, 40]))
+    block.append(pygame.draw.rect(maSurface, BLUE, [500, 340, 80, 40]))
     maSurface.blit(textsurface, (0, 0))
     # handle bullets
     for bullet in bullets:
@@ -108,11 +114,21 @@ def redrawGameWindow():
                 if bullet.posY >= listeAlien[x][1] and bullet.posY <= listeAlien[x][1] + 30 and listeAlien[x][2] == True:
                     bullets.remove(bullet)
                     setScore()
+                    bom = threading.Thread(target=boom, args=(
+                        listeAlien[x][0], listeAlien[x][1]))
+                    bom.start()
                     listeAlien[x][2] = False
                     alienDead = threading.Thread(target=playExplosion)
                     alienDead.start()
                     break
         bullet.draw(maSurface)
+    pygame.display.update()
+
+
+def boom(x, y):
+    boom = pygame.image.load('assets/boom.png')
+    boom = pygame.transform.scale(boom, (50, 50))
+    maSurface.blit(boom, (x, y))
     pygame.display.update()
 
 
